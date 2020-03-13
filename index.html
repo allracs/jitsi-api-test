@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Jitsi Meet</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body onunload="unload()">
+	<h1 class="col-12">Jitsi Meet</h1>
+	<div class="col-12">
+		<div class="col-12 mb-2">
+			<i class="material-icons btn btn-success" onclick="start()">call</i>
+			<i class="material-icons btn btn-danger" onclick="hangup()">call_end</i>
+		</div>
+		<div class="col-12 ml-2">
+			<input type="text" name="name" id="name">
+		</div>
+		<div id="meet"></div>
+	</div>
+	<script src='https://meet.jit.si/external_api.js'></script>
+	<script>
+		const domain = 'meet.jit.si';
+		const options = {
+			roomName: 'allracs',
+			width: document.getElementById("meet").width,
+			height: 700,
+			parentNode: document.querySelector('#meet'),
+			interfaceConfigOverwrite: {
+				filmStripOnly: false,
+				TOOLBAR_ALWAYS_VISIBLE: true,
+				TOOLBAR_BUTTONS: ['camera', 'microphone', 'hangup', 'settings'],
+				SETTINGS_SECTIONS: ['devices'],
+				OPTIMAL_BROWSERS: [ 'chrome', 'chromium', 'firefox', 'nwjs', 'electron' ],
+				VERTICAL_FILMSTRIP: false,
+				RECENT_LIST_ENABLED: false,
+				DEFAULT_REMOTE_DISPLAY_NAME: document.getElementById("name").value,
+				DEFAULT_LOCAL_DISPLAY_NAME: 'Yo',
+				SHOW_JITSI_WATERMARK: true,
+				APP_NAME: 'Omu call',
+				NATIVE_APP_NAME: 'Omu call',
+				MOBILE_APP_PROMO: false,
+
+			},
+		};
+		var api;
+
+		function start() {
+			if(api == undefined || api == null){
+			}
+			api = new JitsiMeetExternalAPI(domain, options);
+		}
+
+		function getAvaliable (){
+			if(api != undefined || api != null){
+				api.getAvailableDevices().then(devices => {
+					console.log("GET AVALIABLE", devices);
+				});
+			}
+		}
+		function getCurrent () {
+			if(api != undefined || api != null){
+				api.getCurrentDevices().then(devices => {
+					console.log("GET CURRENT", devices);
+				});
+			}
+		}
+		function setAudioInputDevice() {
+			if(api != undefined || api != null){
+				api.setAudioInputDevice(deviceLabel, deviceId);
+			}
+		}
+		function setAudioOutputDevice() {
+			if(api != undefined || api != null){
+				api.setAudioOutputDevice(deviceLabel, deviceId);
+			}
+		}
+		function setVideoInputDevice() {
+			if(api != undefined || api != null){
+				api.setVideoInputDevice(deviceLabel, deviceId);
+			}
+		}
+		function hangup() {
+			if(api != undefined || api != null){
+				api.executeCommand('hangup');
+			}
+			document.getElementById("meet").innerHTML = "";
+		}
+		function toggleFilmStrip() {
+			if(api != undefined || api != null){
+				api.executeCommand('toggleFilmStrip');
+			}
+		}
+		function unload() {
+			console.log("%cUnload page", "color:red; font-size:30px");
+			if(api != undefined || api != null){
+				api.executeCommand('hangup');
+				api.dispose();
+			}
+		}
+		api.addEventListener('readyToClose', hangup);
+		document.getElementsByTagName("body")[0].addEventListener('unload', unload);
+	</script>
+	<style>
+		i {
+			margin-left: 5px;
+			width: 50px;
+			height: 50px;
+			font-size: 25px !important;
+			border-radius: 30px !important;
+		}
+	</style>
+</body>
+</html>
