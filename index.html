@@ -13,38 +13,48 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 <body onunload="unload()">
-	<h1 class="col-12">Jitsi Meet</h1>
-	<div class="col-12">
-		<div class="col-12 mb-2">
-			<i class="material-icons btn btn-success" onclick="start()">call</i>
-			<i class="material-icons btn btn-danger" onclick="hangup()">call_end</i>
+	<main class="container d-flex">
+		<h1 class="col-12 text-center">Jitsi Meet</h1>
+		<div class="col-12 d-flex">
+			<div class="col-12 d-flex-center">
+				<i class="material-icons btn btn-success col" onclick="start()">call</i>
+				<i class="material-icons btn btn-danger col" onclick="hangup()">call_end</i>
+			</div>
+			<div class="col-12 col-md-4">
+				<input type="text" name="name" id="name" placeholder="Your name here">
+			</div>
+			<div class="col-12 col-md-4">
+				<input type="text" name="room" id="room" placeholder="Room name">
+			</div>
+			<div class="col-12 col-md-4">
+				<input type="text" name="pass" id="pass" placeholder="Password">
+			</div>
+			<div id="meet" class="col-12"></div>
 		</div>
-		<div class="col-12 ml-2">
-			<input type="text" name="name" id="name">
-		</div>
-		<div id="meet"></div>
-	</div>
+	</main>
 	<script src='https://meet.jit.si/external_api.js'></script>
 	<script>
 		const domain = 'meet.jit.si';
-		const options = {
+		var w = document.getElementById("meet").clientWidth;
+		var h = w * 9 / 16;
+		var options = {
 			roomName: 'allracs',
-			width: document.getElementById("meet").width,
-			height: 700,
+			width: w,
+			height: h,
 			parentNode: document.querySelector('#meet'),
 			interfaceConfigOverwrite: {
 				filmStripOnly: false,
 				TOOLBAR_ALWAYS_VISIBLE: true,
-				TOOLBAR_BUTTONS: ['camera', 'microphone', 'hangup', 'settings'],
+				TOOLBAR_BUTTONS: ['camera', 'hangup', 'microphone', 'settings'],
 				SETTINGS_SECTIONS: ['devices'],
 				OPTIMAL_BROWSERS: [ 'chrome', 'chromium', 'firefox', 'nwjs', 'electron' ],
 				VERTICAL_FILMSTRIP: false,
 				RECENT_LIST_ENABLED: false,
-				DEFAULT_REMOTE_DISPLAY_NAME: document.getElementById("name").value,
-				DEFAULT_LOCAL_DISPLAY_NAME: 'Yo',
+				DEFAULT_REMOTE_DISPLAY_NAME: 'Friend',
+				DEFAULT_LOCAL_DISPLAY_NAME: 'Me',
 				SHOW_JITSI_WATERMARK: true,
-				APP_NAME: 'Omu call',
-				NATIVE_APP_NAME: 'Omu call',
+				APP_NAME: 'Jitsi call',
+				NATIVE_APP_NAME: 'Jisti call',
 				MOBILE_APP_PROMO: false,
 
 			},
@@ -53,8 +63,15 @@
 
 		function start() {
 			if(api == undefined || api == null){
+				options.roomName = document.getElementById("room").value;
+				options.DEFAULT_LOCAL_DISPLAY_NAME = document.getElementById("name").value;
+				api = new JitsiMeetExternalAPI(domain, options);
+				api.addEventListener('readyToClose', hangup);
+				let pass = document.getElementById("pass").value;
+				if(pass != null || pass != undefined) {
+					api.executeCommand('password', pass);
+				}
 			}
-			api = new JitsiMeetExternalAPI(domain, options);
 		}
 
 		function getAvaliable (){
@@ -89,6 +106,8 @@
 		function hangup() {
 			if(api != undefined || api != null){
 				api.executeCommand('hangup');
+				api.dispose();
+				api = null;
 			}
 			document.getElementById("meet").innerHTML = "";
 		}
@@ -104,16 +123,29 @@
 				api.dispose();
 			}
 		}
-		api.addEventListener('readyToClose', hangup);
 		document.getElementsByTagName("body")[0].addEventListener('unload', unload);
 	</script>
 	<style>
+		h1 {
+			border-bottom: 1px solid black;
+		}
+		.d-flex-center {
+			display: flex;
+			justify-content: center;
+			margin-bottom: 10px;
+		}
 		i {
 			margin-left: 5px;
 			width: 50px;
 			height: 50px;
 			font-size: 25px !important;
 			border-radius: 30px !important;
+		}
+		main {
+			height: 100vh;
+		}
+		input {
+			width: 100%;
 		}
 	</style>
 </body>
