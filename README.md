@@ -2,6 +2,10 @@
 
 Testing Jitsi Meet API for embed call/videocall system.
 
+Links: 
+- [Jitsi Meet](https://github.com/jitsi/jitsi-meet)
+- [Jitsi Meet API Doc](https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md)
+
 ## Requirements
 
 - NPM and NodeJS
