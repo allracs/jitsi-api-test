@@ -1,6 +1,6 @@
 # Jitsi Meet API Test
 
-Testing Jitsi Meet API to embed a call/videocall system in a web.
+Testing Jitsi Meet API for embed call/videocall system.
 
 ## Requirements
 
