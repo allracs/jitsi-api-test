@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Jitsi Meet</title>
+	<title>Jitsi Meet API test</title>
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -14,7 +14,8 @@
 </head>
 <body onunload="unload()">
 	<main class="container d-flex">
-		<h1 class="col-12 text-center">Jitsi Meet</h1>
+		<h1 class="col-12 text-center">Jitsi Meet API test</h1>
+		<h6 class="col-12 text-center">Press F12 to see console logs</h6>
 		<div class="col-12 d-flex">
 			<div class="col-12 d-flex-center">
 				<i class="material-icons btn btn-success col" onclick="start()">call</i>
@@ -26,11 +27,12 @@
 			<div class="col-12 col-md-4">
 				<input type="text" name="room" id="room" placeholder="Room name">
 			</div>
-			<div class="col-12 col-md-4">
+			<div class="col-12 col-md-4 flex-row">
 				<input type="text" name="pass" id="pass" placeholder="Password">
+				<i class="material-icons btn btn-primary col" onclick="setpass()">vpn_key</i>
 			</div>
-			<div id="meet" class="col-12"></div>
 		</div>
+		<div id="meet" class="col-12"></div>
 	</main>
 	<script src='https://meet.jit.si/external_api.js'></script>
 	<script>
@@ -44,15 +46,15 @@
 			parentNode: document.querySelector('#meet'),
 			interfaceConfigOverwrite: {
 				filmStripOnly: false,
-				TOOLBAR_ALWAYS_VISIBLE: true,
-				TOOLBAR_BUTTONS: ['camera', 'hangup', 'microphone', 'settings'],
+				TOOLBAR_ALWAYS_VISIBLE: false,
+				TOOLBAR_BUTTONS: ['camera', 'hangup', 'microphone', 'settings', 'info'],
 				SETTINGS_SECTIONS: ['devices'],
 				OPTIMAL_BROWSERS: [ 'chrome', 'chromium', 'firefox', 'nwjs', 'electron' ],
 				VERTICAL_FILMSTRIP: false,
 				RECENT_LIST_ENABLED: false,
 				DEFAULT_REMOTE_DISPLAY_NAME: 'Friend',
 				DEFAULT_LOCAL_DISPLAY_NAME: 'Me',
-				SHOW_JITSI_WATERMARK: true,
+				SHOW_JITSI_WATERMARK: false,
 				APP_NAME: 'Jitsi call',
 				NATIVE_APP_NAME: 'Jisti call',
 				MOBILE_APP_PROMO: false,
@@ -63,59 +65,56 @@
 
 		function start() {
 			if(api == undefined || api == null){
+				console.log("%cSTART CALL", "color:blue; font-size:30px");
 				options.roomName = document.getElementById("room").value;
 				options.DEFAULT_LOCAL_DISPLAY_NAME = document.getElementById("name").value;
 				api = new JitsiMeetExternalAPI(domain, options);
-				api.addEventListener('readyToClose', hangup);
-				let pass = document.getElementById("pass").value;
-				if(pass != null || pass != undefined) {
-					api.executeCommand('password', pass);
-				}
+				
+				api.addEventListener('onload', () => {
+					console.log("%cLOADED", "color:blue; font-size:40px");
+				});
+
+				console.log();
+				api.getIFrame().addEventListener('load', () => {
+					console.log("%cIFRAME LOADED", "color:blue; font-size:40px");
+				})
+
+				api.executeCommand('subject', 'On call');
+
+				api.addEventListener('readyToClose', () => {
+					hangup();
+				});
+
+				// if(document.getElementById("pass").value != undefined){
+				// 	console.log("%cSET PASSWORD", "color:red; font-size:24px");
+				// 	api.executeCommand('password', 'pass');
+				// }
+
+				// let pass = document.getElementById("pass").value;
+				// if(pass != null || pass != undefined) {
+				// 	api.executeCommand('password', pass);
+				// }
 			}
 		}
 
-		function getAvaliable (){
-			if(api != undefined || api != null){
-				api.getAvailableDevices().then(devices => {
-					console.log("GET AVALIABLE", devices);
-				});
-			}
-		}
-		function getCurrent () {
-			if(api != undefined || api != null){
-				api.getCurrentDevices().then(devices => {
-					console.log("GET CURRENT", devices);
-				});
-			}
-		}
-		function setAudioInputDevice() {
-			if(api != undefined || api != null){
-				api.setAudioInputDevice(deviceLabel, deviceId);
-			}
-		}
-		function setAudioOutputDevice() {
-			if(api != undefined || api != null){
-				api.setAudioOutputDevice(deviceLabel, deviceId);
-			}
-		}
-		function setVideoInputDevice() {
-			if(api != undefined || api != null){
-				api.setVideoInputDevice(deviceLabel, deviceId);
-			}
-		}
+		
 		function hangup() {
 			if(api != undefined || api != null){
+				console.log("%cHANGUP", "color:red; font-size:30px");
 				api.executeCommand('hangup');
 				api.dispose();
 				api = null;
 			}
 			document.getElementById("meet").innerHTML = "";
 		}
-		function toggleFilmStrip() {
-			if(api != undefined || api != null){
-				api.executeCommand('toggleFilmStrip');
+
+		function setpass() {
+			if(document.getElementById("pass").value != null || document.getElementById("pass").value != undefined) {
+				console.log("%cSET PASSWORD", "color:blue; font-size:24px");
+				api.executeCommand('password', document.getElementById("pass").value)
 			}
 		}
+		
 		function unload() {
 			console.log("%cUnload page", "color:red; font-size:30px");
 			if(api != undefined || api != null){
@@ -145,7 +144,11 @@
 			height: 100vh;
 		}
 		input {
-			width: 100%;
+			margin: auto 0;
+		}
+		h6 + div > div {
+			display: flex;
+			height: 60px;
 		}
 	</style>
 </body>
